@@ -147,7 +147,7 @@ class LeadEnricher:
     def enrich_batch(self, leads: List[Dict], progress: Dict) -> Dict:
         """
         Batch enrichment (Pro feature).
-        For MVP, this is a placeholder for automated browser lookups.
+        Uses browser automation for automated lookups.
         """
         if not self.is_pro:
             print("\n⚠️  Batch processing requires a Pro license ($49)")
@@ -155,15 +155,85 @@ class LeadEnricher:
             sys.exit(1)
         
         print("\n🚀 Pro Mode: Automated batch processing")
-        print("   This feature uses browser automation to lookup leads automatically.")
+        print("   Using browser automation for TruePeopleSearch lookups")
         print("   Estimated time: ~20-30 seconds per lead")
         
-        # TODO: Implement browser automation via Playwright/Selenium
-        # For now, show what would happen
-        remaining = len(leads) - progress['processed']
-        print(f"\n   {remaining} leads remaining to process")
-        print("   [Browser automation would run here in production]")
+        # Import browser automation module
+        try:
+            from browser_automation import BrowserAutomation
+        except ImportError:
+            print("\n❌ Error: browser_automation module not found")
+            print("   Make sure browser_automation.py is in the same directory")
+            sys.exit(1)
         
+        # Initialize automation
+        automation = BrowserAutomation(profile='chrome')
+        
+        # Prepare batch
+        remaining_leads = []
+        for lead in leads[progress['processed']:]:
+            lead_id = self._get_lead_id(lead)
+            if lead_id not in progress['results']:
+                # Extract lead info
+                name = (lead.get('Name') or 
+                       lead.get('full_name') or 
+                       lead.get('Owner_Name') or 
+                       f"{lead.get('first_name', '')} {lead.get('last_name', '')}".strip())
+                city = lead.get('City') or lead.get('city') or ''
+                state = lead.get('State') or lead.get('State_Abbr') or lead.get('state') or 'FL'
+                
+                remaining_leads.append({
+                    'id': lead_id,
+                    'name': name,
+                    'city': city,
+                    'state': state
+                })
+        
+        if not remaining_leads:
+            print("\n✅ All leads already processed!")
+            return progress
+        
+        print(f"\n   Processing {len(remaining_leads)} remaining leads...")
+        print("   Make sure Chrome extension is attached to an active tab!\n")
+        
+        # Progress callback
+        def progress_callback(current, total, result):
+            if result:
+                progress['enriched'] += 1
+                print(f"  ✅ Found: {result.get('phone', 'N/A')}")
+            else:
+                progress['failed'] += 1
+                print(f"  ❌ No results")
+            
+            progress['processed'] += 1
+            self.save_progress(progress)
+        
+        # Run batch automation
+        results = automation.batch_lookup(
+            remaining_leads,
+            delay=5.0,  # 5 second delay between lookups
+            progress_callback=progress_callback
+        )
+        
+        # Store results
+        for i, lead_data in enumerate(remaining_leads):
+            result = results[i]
+            if result:
+                progress['results'][lead_data['id']] = {
+                    'phone': result.get('phone', ''),
+                    'email': result.get('email', ''),
+                    'address': result.get('address', ''),
+                    'status': 'auto_enriched'
+                }
+            else:
+                progress['results'][lead_data['id']] = {
+                    'phone': '',
+                    'email': '',
+                    'address': '',
+                    'status': 'lookup_failed'
+                }
+        
+        self.save_progress(progress)
         return progress
     
     def run(self, batch: bool = False):
