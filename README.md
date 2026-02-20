@@ -68,11 +68,11 @@ John Smith,123 Main St,Orlando,FL
 Jane Doe,456 Oak Ave,Tampa,FL
 ```
 
-Accepted column names:
-- Name / Owner_Name / Owner
-- Address / Property_Address / Mailing_Address
-- City
-- State / State_Abbr
+Accepted column names (auto-detected):
+- **Name:** Name, full_name, Owner_Name, or first_name + last_name
+- **Address:** Address, address, Property_Address, Mailing_Address
+- **City:** City, city
+- **State:** State, State_Abbr, state (defaults to FL if missing)
 
 ---
 

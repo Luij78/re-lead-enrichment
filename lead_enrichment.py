@@ -91,9 +91,15 @@ class LeadEnricher:
     
     def _get_lead_id(self, lead: Dict) -> str:
         """Generate unique ID for lead."""
-        # Use name + address or whatever unique fields exist
-        name = lead.get('Name', lead.get('Owner_Name', ''))
-        address = lead.get('Address', lead.get('Property_Address', ''))
+        # Support multiple column name variations
+        name = (lead.get('Name') or 
+                lead.get('full_name') or 
+                lead.get('Owner_Name') or 
+                f"{lead.get('first_name', '')} {lead.get('last_name', '')}".strip())
+        address = (lead.get('Address') or 
+                   lead.get('address') or 
+                   lead.get('Property_Address') or 
+                   lead.get('Mailing_Address') or '')
         return f"{name}|{address}".strip()
     
     def extract_phone(self, text: str) -> Optional[str]:
@@ -115,9 +121,13 @@ class LeadEnricher:
         Manual enrichment mode - generates search query for user.
         In Pro mode, this would be automated via browser automation.
         """
-        name = lead.get('Name', lead.get('Owner_Name', ''))
-        city = lead.get('City', '')
-        state = lead.get('State', lead.get('State_Abbr', ''))
+        # Support multiple column name variations
+        name = (lead.get('Name') or 
+                lead.get('full_name') or 
+                lead.get('Owner_Name') or 
+                f"{lead.get('first_name', '')} {lead.get('last_name', '')}".strip())
+        city = lead.get('City') or lead.get('city') or ''
+        state = lead.get('State') or lead.get('State_Abbr') or lead.get('state') or 'FL'
         
         search_query = f'"{name}" {city} {state} phone'
         
