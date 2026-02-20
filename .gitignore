@@ -1,0 +1,9 @@
+*.progress.json
+*_enriched.csv
+__pycache__/
+*.pyc
+.env
+venv/
+dist/
+build/
+*.egg-info/
