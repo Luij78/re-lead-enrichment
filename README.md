@@ -1,5 +1,11 @@
 # 🏠 RE Lead Enrichment Tool
 
+[![GitHub stars](https://img.shields.io/github/stars/Luij78/re-lead-enrichment?style=social)](https://github.com/Luij78/re-lead-enrichment)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+**🌐 Landing Page:** [landing-page-nine-beta-80.vercel.app](https://landing-page-nine-beta-80.vercel.app)  
+**💰 Get Pro Edition:** [gumroad.com/l/re-lead-enrichment](https://gumroad.com/l/re-lead-enrichment) (coming soon)
+
 ## 💰 Stop Paying $0.15-0.30 Per Lead
 
 **The Problem:** You've got a list of property owners (names, addresses) but no way to contact them. Skip tracing services charge $0.15-0.30 per lead minimum. For 1,000 leads, that's $150-$300.
